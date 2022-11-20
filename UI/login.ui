@@ -264,7 +264,7 @@ border-radius:10px;
 color:red;</string>
      </property>
      <property name="text">
-      <string>error text</string>
+      <string>Invalid user mail</string>
      </property>
     </widget>
     <widget class="QLabel" name="nameTextLabel">
@@ -429,7 +429,7 @@ border-radius:10px;
 color:black;</string>
      </property>
      <property name="text">
-      <string>error text</string>
+      <string>Invalid user mail</string>
      </property>
     </widget>
    </widget>

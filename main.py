@@ -13,39 +13,48 @@ from PyQt5.uic import loadUi
 import tkinter as tk
 from tkinter import simpledialog
 
-import io, json
+import io, json, re
 
 class LoginSingupUI(QDialog):
     def __init__(self):
         super(LoginSingupUI, self).__init__()
-       
+        
         loadUi("./UI/login.ui",self)
         
         self.loginButton.clicked.connect(self.go_main_menu_via_login)
         self.signUpButton.clicked.connect(self.go_main_menu_via_signup)
+        self.errorTextSignUp.setVisible(False)
+        self.errorTextLogin.setVisible(False)
+
+    # Define a function for
+    # for validating an Email
+    def is_valid_email(self, email):
+        # Make a regular expression
+        # for validating an Email
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        # pass the regular expression
+        # and the string into the fullmatch() method
+        if(re.fullmatch(regex, email)):
+            return False
+        else:
+            return True
+    
+    def check_value(self, data, val):
+        return any(user['Email']==val for user in data['UsersInfo'])
 
     def go_main_menu_via_login(self):
-        # check the database if the mail is exist, if not return false
-        print('Your mail: ' + self.emailInputLogin.text())
+        with open('userInformation.json', 'r') as f_in:
+            data_read = json.load(f_in) 
 
-          # Opening JSON file
-        f = open('userInformation.json',)
-        
-        # returns JSON object as 
-        # a dictionaryn
-        data = json.load(f)
-        
-        # Iterating through the json
-        # list
-        for i in data['UsersInfo']:
-            print('data: ', i)
-        
-        # Closing file
-        f.close()
-
-        main_menu = MainMenuUI()
-        widget.addWidget(main_menu)
-        widget.setCurrentIndex(widget.currentIndex()+1)
+        if(self.check_value(data_read, self.emailInputLogin.text())==False or self.is_valid_email(self.emailInputLogin.text())):
+            UI = LoginSingupUI() # This line determines which screen you will load
+            UI.errorTextLogin.setVisible(True)
+            widget.addWidget(UI)
+            widget.setCurrentIndex(widget.currentIndex()+1)
+        else:
+            main_menu = MainMenuUI()
+            widget.addWidget(main_menu)
+            widget.setCurrentIndex(widget.currentIndex()+1)
     
     def go_main_menu_via_signup(self):
         # function to add to JSON
@@ -63,19 +72,16 @@ class LoginSingupUI(QDialog):
             # python object to be appended
           
         data_write = {
-            'Name: ': self.nameInputSignUp.text(),
-            'Email: ': self.emailInputSignUp.text()
+            'Name': self.nameInputSignUp.text(),
+            'Email': self.emailInputSignUp.text()
         }
-
-        def check_value(data, val):
-            return any(user['Email']==val for user in data['UsersInfo'])
 
         with open('userInformation.json', 'r') as f_in:
             data_read = json.load(f_in)
         
-        if(check_value(data_read, self.emailInputSignUp.text())):
+        if(self.check_value(data_read, self.emailInputSignUp.text()) or self.is_valid_email(self.emailInputSignUp.text())):
             UI = LoginSingupUI() # This line determines which screen you will load
-            LoginSingupUI.errorTextSignUp.text = 'This mail is exist, TRY AGAIN!'
+            UI.errorTextSignUp.setVisible(True)
             widget.addWidget(UI)
             widget.setCurrentIndex(widget.currentIndex()+1)
         else:
