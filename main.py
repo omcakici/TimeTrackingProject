@@ -28,7 +28,7 @@ class LoginSingupUI(QDialog):
 
     # Define a function for
     # for validating an Email
-    def is_valid_email(self, email):
+    def is_not_valid_email(self, email):
         # Make a regular expression
         # for validating an Email
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -38,6 +38,17 @@ class LoginSingupUI(QDialog):
             return False
         else:
             return True
+
+    def is_name_not_valid(self, name):
+        if(len(name) <= 4):
+            return True
+        
+        if(name.isalpha()):
+            return False
+        else: 
+            return True
+
+        return False
     
     def check_value(self, data, val):
         return any(user['Email']==val for user in data['UsersInfo'])
@@ -79,15 +90,20 @@ class LoginSingupUI(QDialog):
         with open('userInformation.json', 'r') as f_in:
             data_read = json.load(f_in)
         
-        if(self.check_value(data_read, self.emailInputSignUp.text()) or self.is_valid_email(self.emailInputSignUp.text())):
+        if(self.check_value(data_read, self.emailInputSignUp.text()) or self.is_not_valid_email(self.emailInputSignUp.text())):
+            UI = LoginSingupUI() # This line determines which screen you will load
+            UI.errorTextSignUp.setVisible(True)
+            widget.addWidget(UI)
+            widget.setCurrentIndex(widget.currentIndex()+1)
+        elif(self.is_name_not_valid(self.nameInputSignUp.text())):
+            print('whyy')
             UI = LoginSingupUI() # This line determines which screen you will load
             UI.errorTextSignUp.setVisible(True)
             widget.addWidget(UI)
             widget.setCurrentIndex(widget.currentIndex()+1)
         else:
-            write_json(data_write)
             # # Write JSON file
-
+            write_json(data_write)
             main_menu = MainMenuUI()
             widget.addWidget(main_menu)
             widget.setCurrentIndex(widget.currentIndex()+1)
